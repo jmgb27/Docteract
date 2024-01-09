@@ -34,10 +34,6 @@ const useChat = () => {
         if (messages.length === 0) {
             setMessages([
                 {
-                    role: "system",
-                    content: `This is a System Message`,
-                },
-                {
                     role: "assistant",
                     content: "👋 Hi, how can I help you?",
                 },
@@ -91,6 +87,34 @@ const useChat = () => {
         updateConversationHistory(newMessages, conversationId);
     };
 
+    async function fetchQueryResults(conversationId: string, query: string) {
+        const apiEndpoint = `${import.meta.env.VITE_BACKEND_URL}/query`;
+        const formData = new FormData();
+        formData.append("conversation_id", conversationId);
+        formData.append("query", query);
+
+        return fetch(apiEndpoint, {
+            method: "POST",
+            body: formData,
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // Return the data instead of setting the state
+                return data;
+            })
+            .catch((error) => {
+                alert(
+                    "An Error Occured. Please reload or Create new chat and try again."
+                );
+                throw error;
+            });
+    }
+
     const sendMessage = useCallback(async () => {
         if (userInput.trim() !== "") {
             setIsProcessing(true);
@@ -107,43 +131,84 @@ const useChat = () => {
             }
 
             const updatedMessages = [...messages, newUserMessage];
-            setMessages(updatedMessages);
 
-            // Immediately update localStorage with the new conversation
-            updateLocalStorage(updatedMessages, conversationId);
+            if (conversationId && selectedConversationId) {
+                const fetchData = await fetchQueryResults(
+                    selectedConversationId,
+                    userInput.trim()
+                );
 
-            setUserInput("");
-            ongoingMessageRef.current = "";
+                setMessages(updatedMessages);
 
-            try {
-                const completion = await openai.chat.completions.create({
-                    model: "teknium/OpenHermes-2p5-Mistral-7B",
-                    messages: updatedMessages,
-                    max_tokens: 1024,
-                    stream: true,
-                });
-
-                for await (const chunk of completion) {
-                    if (
-                        chunk.choices[0].delta &&
-                        chunk.choices[0].delta.content
-                    ) {
-                        ongoingMessageRef.current +=
-                            chunk.choices[0].delta.content;
-
-                        const newMessages: Message[] = [
-                            ...updatedMessages,
-                            {
-                                role: "assistant",
-                                content: ongoingMessageRef.current,
-                            },
-                        ];
-                        setMessages(newMessages);
-                        updateLocalStorage(newMessages, conversationId);
-                    }
+                // Immediately update localStorage with the new conversation
+                if (conversationId) {
+                    updateLocalStorage(updatedMessages, conversationId);
                 }
-            } catch (error) {
-                console.error("Error calling OpenAI API:", error);
+
+                // add system role message to the updatedMessages
+                const systemMessage: Message = {
+                    role: "system",
+                    content: `
+Your answers should only based from the context or information given.
+You are not allowed to make up your own answers.
+You are not allowed to answer questions outside of the context or the information given.
+Always include all pages and sources if needed.
+
+--Start of Information--
+${fetchData.results.documents[0].map((result: string) => {
+    return result;
+})}
+
+${fetchData.results.metadatas[0].map(
+    (result: { page: number; source: string }) => {
+        return ` \nSource: ${result.source.replace("./files/", "")} Page:${
+            result.page
+        }`;
+    }
+)}
+--End of Information--`,
+                };
+
+                setUserInput("");
+                ongoingMessageRef.current = "";
+
+                try {
+                    const completion = await openai.chat.completions.create({
+                        model: "teknium/OpenHermes-2p5-Mistral-7B",
+                        messages: [...updatedMessages, systemMessage],
+                        max_tokens: 1024,
+                        stream: true,
+                    });
+
+                    for await (const chunk of completion) {
+                        if (
+                            chunk.choices[0].delta &&
+                            chunk.choices[0].delta.content
+                        ) {
+                            ongoingMessageRef.current +=
+                                chunk.choices[0].delta.content;
+
+                            const newMessages: Message[] = [
+                                ...updatedMessages,
+                                {
+                                    role: "assistant",
+                                    content: ongoingMessageRef.current,
+                                },
+                            ];
+
+                            setMessages(newMessages);
+
+                            if (conversationId) {
+                                updateLocalStorage(newMessages, conversationId);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    alert(
+                        "An Error Occured. Please reload or Create new chat and try again."
+                    );
+                    console.error("Error calling OpenAI API:", error);
+                }
             }
 
             setIsProcessing(false);

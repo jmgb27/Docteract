@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Message } from "../interfaces/MessageInterface";
+import { v4 as uuidv4 } from "uuid";
 
 // Define types for your state
 type Conversation = {
@@ -9,12 +10,12 @@ type Conversation = {
 
 type ConversationStore = {
     messages: Message[];
-    selectedConversationId: string | null;
+    selectedConversationId: string;
     conversationHistory: Conversation[];
 
     // Methods
     setMessages: (newMessages: Message[]) => void;
-    setSelectedConversationId: (id: string | null) => void;
+    setSelectedConversationId: (id: string) => void;
     setConversationHistory: (newHistory: Conversation[]) => void;
     updateConversationHistory: (
         newMessages: Message[],
@@ -25,7 +26,7 @@ type ConversationStore = {
 const useConversationStore = create<ConversationStore>((set) => ({
     // Initial state
     messages: [],
-    selectedConversationId: null,
+    selectedConversationId: uuidv4(),
     conversationHistory: [],
 
     // Method to set messages

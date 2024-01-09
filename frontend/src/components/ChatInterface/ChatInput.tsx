@@ -5,6 +5,8 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import { useStyles } from "../../styles/useStyles";
+import Dialog from "@material-ui/core/Dialog";
+import UploadDocument from "../Modals/uploadDocument";
 
 interface ChatInputProps {
     userInput: string;
@@ -21,6 +23,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
     const classes = useStyles();
 
+    const [openUploadModal, setOpenUploadModal] =
+        React.useState<boolean>(false);
+
     const handleKeyPress = (event: React.KeyboardEvent) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault(); // Prevent the default action to avoid a line break being added
@@ -29,8 +34,21 @@ const ChatInput: React.FC<ChatInputProps> = ({
         // If Shift + Enter is pressed, the default action will occur, which is to insert a line break.
     };
 
+    const handleClose = () => {
+        setOpenUploadModal(false);
+    };
+
     return (
         <div className={classes.inputSection}>
+            <Dialog
+                open={openUploadModal}
+                onClose={handleClose}
+                aria-labelledby="parent-modal-title"
+                aria-describedby="parent-modal-description"
+            >
+                <UploadDocument />
+            </Dialog>
+
             <TextField
                 id="outlined-multiline-flexible"
                 multiline
@@ -47,6 +65,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             <IconButton
                                 color="primary"
                                 className={classes.iconButton}
+                                onClick={() => setOpenUploadModal(true)}
                             >
                                 <AttachFileIcon />
                             </IconButton>

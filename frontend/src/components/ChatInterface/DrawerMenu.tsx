@@ -9,6 +9,10 @@ import ListItemText from "@material-ui/core/ListItemText";
 import { useStyles } from "../../styles/useStyles";
 import useConversationStore from "../../store/useConversationStore";
 import { Message } from "../../interfaces/MessageInterface";
+import { Button } from "@material-ui/core";
+import Typography from "@material-ui/core/Typography";
+import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
+import { v4 as uuidv4 } from "uuid";
 
 type Conversation = {
     id: string;
@@ -69,19 +73,33 @@ const DrawerMenu: React.FC = () => {
             classes={{ paper: classes.drawerPaper }}
             anchor="left"
         >
-            <div className={classes.toolbar} />
+            <div style={{ textAlign: "center", padding: "10px" }}>
+                <Typography variant="h4">Docteract</Typography>
+            </div>
+
             <Divider />
+
             <List>
                 {/* Button to reset chat */}
-                <ListItem
-                    button
-                    onClick={() => {
-                        localStorage.setItem("selectedConversation", "[]");
-                        setSelectedConversationId(null);
+                <div
+                    style={{
+                        textAlign: "center",
+                        margin: "5px",
+                        paddingBottom: "10px",
                     }}
                 >
-                    <ListItemText primary="New chat" />
-                </ListItem>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                            localStorage.setItem("selectedConversation", "[]");
+                            const conversationId = uuidv4();
+                            setSelectedConversationId(conversationId);
+                        }}
+                    >
+                        Create New Chat
+                    </Button>
+                </div>
 
                 {conversationHistory.length > 0 ? (
                     conversationHistory.map((conv) => (
@@ -90,14 +108,28 @@ const DrawerMenu: React.FC = () => {
                             key={conv.id}
                             onClick={() => handleListItemClick(conv)}
                         >
-                            <ListItemIcon>
-                                {/* Here you might want to display an icon or something else */}
+                            <ListItemIcon style={{ minWidth: "30px" }}>
+                                <QuestionAnswerIcon color="primary" />
                             </ListItemIcon>
-                            <ListItemText primary={conv.id} />
+
+                            <ListItemText
+                                style={{ margin: 0, padding: 0 }}
+                                primary={`${
+                                    conv.messages[1].content.length > 20
+                                        ? conv.messages[1].content.slice(
+                                              0,
+                                              20
+                                          ) + "..."
+                                        : conv.messages[1].content
+                                }`}
+                            />
                         </ListItem>
                     ))
                 ) : (
-                    <ListItemText primary="No Conversation History." />
+                    <ListItemText
+                        style={{ paddingTop: "20px", textAlign: "center" }}
+                        primary="No Conversation History."
+                    />
                 )}
             </List>
         </Drawer>
