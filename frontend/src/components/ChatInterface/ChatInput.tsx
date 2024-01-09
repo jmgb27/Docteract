@@ -6,7 +6,7 @@ import IconButton from "@material-ui/core/IconButton";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import { useStyles } from "../../styles/useStyles";
 import Dialog from "@material-ui/core/Dialog";
-import UploadDocument from "../Modals/uploadDocument";
+import UploadDocument from "../Modals/UploadDocument";
 
 interface ChatInputProps {
     userInput: string;
