@@ -74,7 +74,7 @@ const DrawerMenu: React.FC = () => {
             anchor="left"
         >
             <div style={{ textAlign: "center", padding: "10px" }}>
-                <Typography variant="h4">Docteract</Typography>
+                <Typography variant="h4"></Typography>
             </div>
 
             <Divider />
