@@ -16,6 +16,8 @@ app.add_middleware(
     allow_origins=["*"],
 )
 
+embedding_model = OpenAIEmbeddings(openai_api_key=os.environ.get("OPENAI_API_KEY"))
+
 def split_text(loader):
     text_splitter=RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=200)
 
@@ -38,16 +40,14 @@ def file_loader(file_name):
     
 
 def create_document_embeddings(content_list):
-    embeddings=OpenAIEmbeddings(openai_api_key=os.environ.get("OPENAI_API_KEY"))
 
-    embeddings_list = embeddings.embed_documents(content_list)
+    embeddings_list = embedding_model.embed_documents(content_list)
 
     return embeddings_list
 
 def embed_query(query):
-    embeddings=OpenAIEmbeddings(openai_api_key=os.environ.get("OPENAI_API_KEY"))
 
-    embeddings_list = embeddings.embed_query(query)
+    embeddings_list = embedding_model.embed_query(query)
 
     return embeddings_list
 
