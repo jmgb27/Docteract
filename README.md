@@ -1,6 +1,6 @@
 # Docteract
 
-Docteract, a portmanteau of "Document" and "Interact," is an innovative chatbot that revolutionizes the way you interact with documents. Upload a document in txt, pdf, or docx format, and engage in a question-and-answer session with our intelligent bot to efficiently extract the information you need.
+Docteract, a portmanteau of "Document" and "Interact," is a chatbot that revolutionizes the way you interact with documents. Upload a document in txt, pdf, or docx format, and engage in a question-and-answer session with our intelligent bot to efficiently extract the information you need.
 
 ## Features
 
