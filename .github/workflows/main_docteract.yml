@@ -22,17 +22,17 @@ jobs:
               run: |
                   python -m venv venv
                   source venv/bin/activate
-              working-directory: ./backend
+              working-directory: backend
 
             - name: Install dependencies
               run: pip install -r requirements.txt
-              working-directory: ./backend
+              working-directory: backend
 
             # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
             - name: Zip artifact for deployment
               run: zip -r release.zip .
-              working-directory: ./backend
+              working-directory: backend
 
             - name: Upload artifact for deployment jobs
               uses: actions/upload-artifact@v3
@@ -55,7 +55,7 @@ jobs:
 
             - name: Unzip artifact for deployment
               run: unzip release.zip
-              working-directory: ./backend
+              working-directory: backend
 
             - name: "Deploy to Azure Web App"
               uses: azure/webapps-deploy@v2
