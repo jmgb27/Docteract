@@ -2,10 +2,11 @@ __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
-from fastapi import FastAPI, File, UploadFile, Form
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
+from pathlib import Path
 import chromadb
 import uuid
 import os
@@ -18,6 +19,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 embedding_model = OpenAIEmbeddings(openai_api_key=os.environ.get("OPENAI_API_KEY"))
@@ -31,7 +34,7 @@ def split_text(loader):
 
     return texts
 
-def file_loader(file_name):
+def file_loader(file_name: str):
     # check file type
     if file_name.endswith('.pdf'):
         loader=PyPDFLoader(file_name)
@@ -57,7 +60,12 @@ def embed_query(query):
 
 @app.post("/ingest")
 async def ingest(conversation_id: str = Form(...), file: UploadFile = File(...)):
-   
+    valid_extensions = ['.pdf', '.docx', '.txt']
+    file_extension = Path(file.filename).suffix
+
+    if file_extension.lower() not in valid_extensions:
+        raise HTTPException(status_code=400, detail="Unsupported file type")
+
     file_location = f"./files/{file.filename}"
 
     os.makedirs(os.path.dirname(file_location), exist_ok=True)

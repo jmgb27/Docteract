@@ -13,6 +13,8 @@ import { Button } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
 import { v4 as uuidv4 } from "uuid";
+import DeleteIcon from "@material-ui/icons/Delete"; // Importing the delete icon
+import IconButton from "@material-ui/core/IconButton";
 
 type Conversation = {
     id: string;
@@ -42,6 +44,27 @@ const DrawerMenu: React.FC = () => {
     useEffect(() => {
         updateConversationHistory();
     }, []);
+
+    const deleteConversation = (conversationId: string) => {
+        // Filter out the conversation to delete
+        const updatedHistory = conversationHistory.filter(
+            (conv) => conv.id !== conversationId
+        );
+
+        // Update local storage and state
+        localStorage.setItem(
+            "conversationHistory",
+            JSON.stringify(updatedHistory)
+        );
+        setConversationHistory(updatedHistory);
+
+        // Reset selected conversation if it's the one being deleted
+        if (selectedConversationId === conversationId) {
+            const newSelectedId = updatedHistory[0]?.id || "";
+            setSelectedConversationId(newSelectedId);
+            setMessages(newSelectedId ? updatedHistory[0].messages : []);
+        }
+    };
 
     useEffect(() => {
         const selectedConversation = conversationHistory.find(
@@ -103,27 +126,38 @@ const DrawerMenu: React.FC = () => {
 
                 {conversationHistory.length > 0 ? (
                     conversationHistory.map((conv) => (
-                        <ListItem
-                            button
-                            key={conv.id}
-                            onClick={() => handleListItemClick(conv)}
-                        >
-                            <ListItemIcon style={{ minWidth: "30px" }}>
-                                <QuestionAnswerIcon color="primary" />
-                            </ListItemIcon>
+                        <React.Fragment key={conv.id}>
+                            <ListItem
+                                button
+                                key={conv.id}
+                                onClick={() => handleListItemClick(conv)}
+                            >
+                                <ListItemIcon style={{ minWidth: "30px" }}>
+                                    <QuestionAnswerIcon color="primary" />
+                                </ListItemIcon>
 
-                            <ListItemText
-                                style={{ margin: 0, padding: 0 }}
-                                primary={`${
-                                    conv.messages[1].content.length > 20
-                                        ? conv.messages[1].content.slice(
-                                              0,
-                                              20
-                                          ) + "..."
-                                        : conv.messages[1].content
-                                }`}
-                            />
-                        </ListItem>
+                                <ListItemText
+                                    style={{ margin: 0, padding: 0 }}
+                                    primary={`${
+                                        conv.messages[1].content.length > 15
+                                            ? conv.messages[1].content.slice(
+                                                  0,
+                                                  15
+                                              ) + "..."
+                                            : conv.messages[1].content
+                                    }`}
+                                />
+                                <IconButton>
+                                    <DeleteIcon
+                                        color="secondary"
+                                        onClick={(event) => {
+                                            event.stopPropagation(); // Prevents ListItem click event
+                                            deleteConversation(conv.id);
+                                        }}
+                                    />
+                                </IconButton>
+                            </ListItem>
+                        </React.Fragment>
                     ))
                 ) : (
                     <ListItemText

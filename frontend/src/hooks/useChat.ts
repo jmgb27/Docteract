@@ -35,7 +35,8 @@ const useChat = () => {
             setMessages([
                 {
                     role: "assistant",
-                    content: "👋 Hi, how can I help you?",
+                    content:
+                        "Please feel free to upload your document below👇️ at your convenience, and I would be more than happy to assist with any questions you might have.",
                 },
             ]);
         }
@@ -149,9 +150,9 @@ const useChat = () => {
                 const systemMessage: Message = {
                     role: "system",
                     content: `
-Your answers should only based from the context or information given.
-You are not allowed to make up your own answers.
-You are not allowed to answer questions outside of the context or the information given.
+You might want to base your answers from the context or information given.
+You are not allowed to make up your own answers. 
+Tell the user you dont know if you do not know the answer.
 Always include all pages and sources if needed.
 
 --Start of Information--

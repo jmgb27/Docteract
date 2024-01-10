@@ -23,10 +23,20 @@ const UploadDocument = () => {
 
     const { selectedConversationId } = useConversationStore();
 
+    const isValidFileExtension = (fileName: string) => {
+        return /\.(pdf|docx|txt)$/i.test(fileName);
+    };
+
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUploadSuccess(false); // Reset upload success state
         if (event.target.files && event.target.files.length > 0) {
             const selectedFile = event.target.files[0];
+            if (!isValidFileExtension(selectedFile.name)) {
+                alert(
+                    "Invalid file type. Only .pdf, .docx, and .txt files are allowed."
+                );
+                return;
+            }
             const maxLength = 20;
             const truncatedFileName =
                 selectedFile.name.length > maxLength
@@ -77,6 +87,9 @@ const UploadDocument = () => {
                 textAlign: "center",
             }}
         >
+            <Typography variant="subtitle2" style={{ marginBottom: "10px" }}>
+                Allowed file types: .pdf, .docx, .txt
+            </Typography>
             <Button
                 component="label"
                 variant="contained"
