@@ -10,11 +10,11 @@ import { useStyles } from "../../styles/useStyles";
 import useConversationStore from "../../store/useConversationStore";
 import { Message } from "../../interfaces/MessageInterface";
 import { Button } from "@material-ui/core";
-import Typography from "@material-ui/core/Typography";
 import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
 import { v4 as uuidv4 } from "uuid";
 import DeleteIcon from "@material-ui/icons/Delete"; // Importing the delete icon
 import IconButton from "@material-ui/core/IconButton";
+import LOGO from "/logo.png";
 
 type Conversation = {
     id: string;
@@ -96,8 +96,13 @@ const DrawerMenu: React.FC = () => {
             classes={{ paper: classes.drawerPaper }}
             anchor="left"
         >
-            <div style={{ textAlign: "center", padding: "10px" }}>
-                <Typography variant="h4"></Typography>
+            <div style={{ textAlign: "center" }}>
+                <img
+                    src={LOGO}
+                    className="App-logo"
+                    alt="logo"
+                    height={"70px"}
+                />
             </div>
 
             <Divider />
